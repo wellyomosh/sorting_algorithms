@@ -1,85 +1,102 @@
 #include "sort.h"
-#include <stdlib.h>
-#include <stdio.h>
 
 /**
- * merge_sort - A function that sorts an array using merge algorithm.
- * @array: The array to sort.
- * @size: The size of the array.
- * Return: Nothing.
+ *top_down_merge - merge sort algorithm
+ *@array: the int array pointer header
+ *@ini:  the array size
+ *@midd:  the array size
+ *@end:  the array size
+ *@dest: the int array pointer header
+ */
+void top_down_merge(int *array, size_t ini, size_t midd, size_t end, int *dest)
+{
+	size_t i = ini, j = midd, k;
+
+	for (k = ini; k < end; k++)
+	{
+		if (i < midd && (j >= end || array[i] <= array[j]))
+		{
+			dest[k] = array[i];
+			i = i + 1;
+		}
+		else
+		{
+			dest[k] = array[j];
+			j = j + 1;
+		}
+	}
+}
+/**
+ *top_down_split - merge sort algorithm
+ *@dest: the int array pointer header
+ *@ini:  the array size
+ *@end:  the array size
+ *@array: the int array pointer header
+ */
+void top_down_split(int *dest, size_t ini, size_t end, int *array)
+{
+	size_t middle, i;
+
+	if (end - ini < 2)
+		return;
+	middle = (end + ini) / 2;
+	top_down_split(array, ini, middle, dest);
+	top_down_split(array, middle, end, dest);
+	top_down_merge(dest, ini, middle, end, array);
+	printf("Merging...\n");
+	printf("[left]: ");
+	for (i = ini; i < middle; i++)
+	{
+		printf("%d", dest[i]);
+		if (i < middle - 1)
+			printf(", ");
+	}
+	printf("\n[right]: ");
+	for (i = middle; i < end; i++)
+	{
+		printf("%d", dest[i]);
+		if (i < end - 1)
+			printf(", ");
+	}
+	printf("\n[Done]: ");
+	for (i = ini; i < end; i++)
+	{
+		printf("%d", array[i]);
+		if (i < end - 1)
+			printf(", ");
+		else
+			printf("\n");
+	}
+}
+
+/**
+ *copy - merge sort algorithm
+ *@array: the int array pointer header
+ *@dest: the destination array
+ *@size:  the array size
+ */
+
+void copy(int *array, int *dest, size_t size)
+{
+	size_t pos = 0;
+
+	for (pos = 0; pos < size; pos++)
+	{
+		dest[pos] = array[pos];
+	}
+}
+
+
+/**
+ *merge_sort - merge sort algorithm
+ *@array: the int array pointer header
+ *@size:  the array size
  */
 void merge_sort(int *array, size_t size)
 {
-	size_t i = 0;
-	int *base = NULL;
+	int *dest = malloc(sizeof(int) * size);
 
-	if (array == NULL || size < 2)
-		return;
-	base = malloc(sizeof(int) * size);
-	if (base == NULL)
-		return;
-	for (; i < size; i++)
-		base[i] = array[i];
-	merge_partition(0, size, array, base);
-	free(base);
-}
-
-/**
- * merge - A function that sorts the subarrays.
- * @lo: Lower index.
- * @mi: Middle index.
- * @hi: Higher index.
- * @dest: Destination for data.
- * @src: Input data.
- * Return: Nothing
- */
-void merge(size_t lo, size_t mi, size_t hi, int *dest, int *src)
-{
-	size_t i = 0, j = 0, k = 0;
-
-	printf("Merging...\n");
-	printf("[left]: ");
-	print_array(src + lo, mi - lo);
-	printf("[right]: ");
-	print_array(src + mi, hi - mi);
-	i = lo;
-	j = mi;
-	k = lo;
-		for (; k < hi; k++)
-		{
-			if (i < mi && (j >= hi || src[i] <= src[j]))
-			{
-				dest[k] = src[i];
-				i++;
-			}
-			else
-			{
-				dest[k] = src[j];
-				j++;
-			}
-		}
-	printf("[Done]: ");
-	print_array(dest + lo, hi - lo);
-}
-
-/**
- * merge_partition - A funtion that splits the array recursively.
- * @lo: Lower index.
- * @hi: Higher index.
- * @array: The array to sort.
- * @base: The copy of the array.
- * Return: Nothing.
- */
-void merge_partition(size_t lo, size_t hi, int *array, int *base)
-{
-	size_t mi = 0;
-
-	if (hi - lo < 2)
-		return;
-	mi = (lo + hi) / 2;
-	merge_partition(lo, mi, array, base);
-	merge_partition(mi, hi, array, base);
-	merge(lo, mi, hi, array, base);
-	for (mi = lo; mi < hi; mi++)
-		base[mi] = array[mi];
+	copy(array, dest, size);
+	top_down_split(dest, 0, size, array);
+	free(dest);
 }
